@@ -1,1 +1,78 @@
-Sample
+Online Book Store API - Insert
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using OnlineBookstore.Interface;
+using OnlineBookstore.Models;
+
+namespace OnlineBookstore.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class BookController : ControllerBase
+    {
+        private readonly IBookRepository _bookRepository;
+
+        public BookController(IBookRepository bookRepository)
+        {
+            _bookRepository = bookRepository;
+        }
+
+        [HttpPost("AddBook")]
+        public IActionResult AddBook([FromBody] Book book)
+        {
+            var result = _bookRepository.AddBook(book);
+            
+            if (result)
+            {
+                return Ok(result);
+            }
+            
+            return StatusCode(500);
+        }
+    }
+}
+
+using OnlineBookstore.Models;
+
+namespace OnlineBookstore.Interface
+{
+    public interface IBookRepository
+    {
+        bool AddBook(Book book);
+    }
+}
+
+
+
+namespace OnlineBookstore.Models
+{
+    public class Book
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public double Price { get; set; }
+    }
+}
+using OnlineBookstore.Interface;
+using OnlineBookstore.Models;
+
+namespace OnlineBookstore.Repository
+{
+    public class BookRepository : IBookRepository
+    {
+        public bool AddBook(Book book)
+        {
+            // Check if book ID already exists in the static list
+            Book existingBook = StaticData.IsBooks.Find(b => b.Id == book.Id);
+
+            if (existingBook == null)
+            {
+                StaticData.IsBooks.Add(book);
+                return true;
+            }
+            return false;
+        }
+    }
+}
