@@ -1,1 +1,74 @@
-sample
+Online Book Store API - Modify
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using OnlineBookstore.Interface;
+using OnlineBookstore.Models;
+
+namespace OnlineBookstore.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class BookController : ControllerBase
+    {
+        private readonly IBookRepository _bookRepository;
+
+        public BookController(IBookRepository bookRepository)
+        {
+            _bookRepository = bookRepository;
+        }
+
+        [HttpPut("UpdatePrice/{id}")]
+        public IActionResult UpdatePrice([FromRoute] int id, [FromBody] double newPrice)
+        {
+            var result = _bookRepository.UpdateBookPrice(id, newPrice);
+
+            if (!result)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
+        }
+    }
+}
+
+using OnlineBookstore.Models;
+
+namespace OnlineBookstore.Interface
+{
+    public interface IBookRepository
+    {
+        bool UpdateBookPrice(int bookId, double newPrice);
+    }
+}
+namespace OnlineBookstore.Models
+{
+    public class Book
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public double Price { get; set; }
+    }
+}
+using OnlineBookstore.Interface;
+using OnlineBookstore.Models;
+
+namespace OnlineBookstore.Repository
+{
+    public class BookRepository : IBookRepository
+    {
+        public bool UpdateBookPrice(int bookId, double newPrice)
+        {
+            var bookToUpdate = StaticData.IsBooks.Find(b => b.Id == bookId);
+            
+            if (bookToUpdate != null)
+            {
+                bookToUpdate.Price = newPrice;
+                return true;
+            }
+            return false;
+        }
+    }
+}
