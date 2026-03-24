@@ -1,1 +1,79 @@
-sample
+Online Book Store API - Remove
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using OnlineBookstore.Interface;
+using OnlineBookstore.Models;
+
+namespace OnlineBookstore.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class BookController : ControllerBase
+    {
+        private readonly IBookRepository _bookRepository;
+
+        public BookController(IBookRepository bookRepository)
+        {
+            _bookRepository = bookRepository;
+        }
+
+        [HttpDelete("DeleteBook/{id}")]
+        public IActionResult Delete([FromRoute] int id)
+        {
+            var result = _bookRepository.DeleteBook(id);
+            if (!result)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+    }
+}
+
+
+
+
+using OnlineBookstore.Models;
+
+namespace OnlineBookstore.Interface
+{
+    public interface IBookRepository
+    {
+        bool DeleteBook(int id);
+    }
+}
+
+
+namespace OnlineBookstore.Models
+{
+    public class Book
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public double Price { get; set; }
+    }
+}
+
+
+
+using OnlineBookstore.Interface;
+using OnlineBookstore.Models;
+
+namespace OnlineBookstore.Repository
+{
+    public class BookRepository : IBookRepository
+    {
+        public bool DeleteBook(int id)
+        {
+            var bookToRemove = StaticData.IsBooks.FirstOrDefault(b => b.Id == id);
+            if (bookToRemove != null)
+            {
+                StaticData.IsBooks.Remove(bookToRemove);
+                return true;
+            }
+            return false;
+        }
+    }
+}
